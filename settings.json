@@ -1,4 +1,8 @@
 {
     "temp_dir": "/tmp/ytmusic-downloader/",
-    "export_dir": "/tmp/music/"
+    "export_dir": "/tmp/music/",
+
+    "flat_playlist_settings":{
+        "playlist_items": "1"
+    }
 }

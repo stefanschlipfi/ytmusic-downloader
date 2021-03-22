@@ -4,21 +4,24 @@ from requests import request
 from PIL import Image
 from exporter import Exporter
 
-class Converter:
+class YTMusic_Downloader:
 
     def __init__(self,url):
 
         #TODO check if is link
         self.url = url
-        self.base_dir = "/opt/ytmusic-downloader/" 
         self.config = self.load_settings()
         self.option_template = {"title":"title","album":"album","artist":"artist","date":"release_year","cover":"thumbnails"}
 
 
     def load_settings(self):
 
+        settings_path = './settings.json'
+        if not os.path.exists(settings_path):
+            settings_path = '/etc/ytmusic-downloader/settings.json'
+
         try:
-            with open(self.base_dir + 'settings.json','r') as jf:
+            with open(settings_path,'r') as jf:
                 return json.load(jf)
         except Exception as e:
             raise e
@@ -30,15 +33,15 @@ class Converter:
         ydl_opts = {'extract_flat' : True}
         ydl_opts.update(options)
 
-        playlist_urls = []
+        playlist_urls = set()
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             playlist_info = ydl.extract_info(self.url, download=False)
             
             if "entries" in playlist_info:
                 for entries in playlist_info['entries']:
-                    playlist_urls.append("https://music.youtube.com/watch?v={0}".format(entries["url"]))
+                    playlist_urls.add("https://music.youtube.com/watch?v={0}".format(entries["url"]))
             else:
-                playlist_urls = [self.url]
+                playlist_urls = {self.url}
 
             return playlist_urls
 
@@ -56,7 +59,7 @@ class Converter:
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl':self.config['temp_dir'] + '/%(title)s-%(id)s.%(ext)s',
+            'outtmpl':self.config['temp_dir'] + '/%(id)s.%(ext)s',
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -78,7 +81,7 @@ class Converter:
                         info_op = ""
                     finally:
                         options.update({to_key:info_op})
-                options.update({"file_path": "{0}/{1}-{2}.{3}".format(self.config['temp_dir'],info_dict["title"],info_dict["id"],ydl_opts["postprocessors"][0]["preferredcodec"])})
+                options.update({"file_path": "{}/{}.{}".format(self.config['temp_dir'],info_dict["id"],ydl_opts["postprocessors"][0]["preferredcodec"])})
                 return True,options
 
     def download_crop_cover(self,url):
@@ -104,7 +107,12 @@ class Converter:
         return True,self.config["temp_dir"] + "/image_croped.png"
 
     def main(self):
-        download_list = self.flat_playlist()
+
+        flat_playlist_settings = s.config.get('flat_playlist_settings')
+        if not flat_playlist_settings:
+            flat_playlist_settings = {'playlist_items': '0-100'}
+
+        download_list = self.flat_playlist(options=flat_playlist_settings)
         downloaded_songs = list()
         for song_url in download_list:
             resp = self.download_url(song_url)
@@ -130,11 +138,11 @@ class Converter:
                 except Exception as e:
                     print("skipped: {0}\nError: {1}".format(file_path,e))
                 else:
-                    print("successfully converted: {0}\n{1}".format(song_dict["title"],elog))
+                    print("successfully exported: {0}\n{1}".format(song_dict["title"],elog))
 
         print("Downloaded {0}:songs from url: {1}".format(len(downloaded_songs),self.url))
 
 if __name__ == "__main__":
     url = input("Enter Youtube Music URL: ")
-    s = Converter(url)
+    s = YTMusic_Downloader(url)
     s.main()
