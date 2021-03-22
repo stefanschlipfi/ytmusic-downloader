@@ -1,0 +1,14 @@
+#TODO:
+
+filenames exceptions --> title with ? 
+
+settings.json:
+	add basedir
+	add playlist-items max
+
+input over parameter
+
+
+#abnormalities:
+
+downloads a duplicat of the first song
