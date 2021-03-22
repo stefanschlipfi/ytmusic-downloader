@@ -10,15 +10,18 @@ class Converter:
 
         #TODO check if is link
         self.url = url
-        self.base_dir = "/opt/ytmusic-downloader/" 
         self.config = self.load_settings()
         self.option_template = {"title":"title","album":"album","artist":"artist","date":"release_year","cover":"thumbnails"}
 
 
     def load_settings(self):
 
+        settings_path = './settings.json'
+        if not os.path.exists(settings_path):
+            settings_path = '/etc/ytmusic-downloader/settings.json'
+
         try:
-            with open(self.base_dir + 'settings.json','r') as jf:
+            with open(settings_path,'r') as jf:
                 return json.load(jf)
         except Exception as e:
             raise e
