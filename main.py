@@ -104,7 +104,7 @@ class Converter:
         return True,self.config["temp_dir"] + "/image_croped.png"
 
     def main(self):
-        download_list = self.flat_playlist({'playlist_items': '0-5'})
+        download_list = self.flat_playlist()
         downloaded_songs = list()
         for song_url in download_list:
             resp = self.download_url(song_url)
@@ -123,8 +123,14 @@ class Converter:
             if resp_cover[0]:
                 song_dict.update({"cover":resp_cover[1]})
                 file_path = song_dict.pop("file_path")
-                e = Exporter(file_path,song_dict)
-                e.export(export_path)
+                
+                try:
+                    e = Exporter(file_path,song_dict)
+                    e.export(export_path)
+                except Exception as e:
+                    print("skipped: {0}\nError: {1}".format(file_path,e))
+                else:
+                    print("successfully converted: {0}".format(song_dict["title"]))
 
         print("Downloaded {0}:songs from url: {0}".format(len(downloaded_songs),self.url))
 
