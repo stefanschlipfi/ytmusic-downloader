@@ -33,7 +33,14 @@ class Exporter(object):
         """
         tags = self.options.copy()
         tags.pop("cover")
-        self.audioseg.export("{0}/{1}-{2}.{3}".format(export_path,self.options["title"],self.options["artist"],self.aformat),
+
+        if self.options["artist"] != "" :
+            filename="{0}/{1}-{2}.{3}".format(export_path,self.options["title"],self.options["artist"],self.aformat)
+        else:
+            filename="{0}/{1}.{2}".format(export_path,self.options["title"],self.aformat)
+
+        self.audioseg.export(filename,
                         format=self.aformat,
                         tags=tags,
                         cover=self.options["cover"])
+        return "File: {0}, Options: {1}".format(filename,self.options)
