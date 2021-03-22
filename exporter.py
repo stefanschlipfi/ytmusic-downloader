@@ -1,7 +1,7 @@
 from pydub import AudioSegment
 
 class Exporter(object):
-    options_template = ["title","album","artist","year","cover"]
+    options_template = ["title","album","artist","date","cover"]
 
     def __init__(self,pathtofile,options):
         self.path = pathtofile
