@@ -10,7 +10,7 @@ class Converter:
 
         #TODO check if is link
         self.url = url
-        self.base_dir = "/opt/ytmusic-downloader/"
+        self.base_dir = "/opt/ytmusic-downloader/" 
         self.config = self.load_settings()
         self.option_template = {"title":"title","album":"album","artist":"artist","year":"release_year","cover":"thumbnails"}
 
@@ -126,13 +126,13 @@ class Converter:
                 
                 try:
                     e = Exporter(file_path,song_dict)
-                    e.export(export_path)
+                    elog = e.export(export_path)
                 except Exception as e:
                     print("skipped: {0}\nError: {1}".format(file_path,e))
                 else:
-                    print("successfully converted: {0}".format(song_dict["title"]))
+                    print("successfully converted: {0}\n{1}".format(song_dict["title"],elog))
 
-        print("Downloaded {0}:songs from url: {0}".format(len(downloaded_songs),self.url))
+        print("Downloaded {0}:songs from url: {1}".format(len(downloaded_songs),self.url))
 
 if __name__ == "__main__":
     url = input("Enter Youtube Music URL: ")
