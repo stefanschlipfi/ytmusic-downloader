@@ -107,7 +107,12 @@ class Converter:
         return True,self.config["temp_dir"] + "/image_croped.png"
 
     def main(self):
-        download_list = self.flat_playlist()
+
+        flat_playlist_settings = s.config.get('flat_playlist_settings')
+        if not flat_playlist_settings:
+            flat_playlist_settings = {'playlist_items': '0-100'}
+
+        download_list = self.flat_playlist(options=flat_playlist_settings)
         downloaded_songs = list()
         for song_url in download_list:
             resp = self.download_url(song_url)
