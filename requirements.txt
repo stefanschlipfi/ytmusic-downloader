@@ -1,3 +1,4 @@
 pydub
 youtube-dl
 ipython
+pillow
