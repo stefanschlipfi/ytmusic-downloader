@@ -4,7 +4,7 @@ from requests import request
 from PIL import Image
 from exporter import Exporter
 
-class Converter:
+class YTMusic_Downloader:
 
     def __init__(self,url):
 
@@ -138,11 +138,11 @@ class Converter:
                 except Exception as e:
                     print("skipped: {0}\nError: {1}".format(file_path,e))
                 else:
-                    print("successfully converted: {0}\n{1}".format(song_dict["title"],elog))
+                    print("successfully exported: {0}\n{1}".format(song_dict["title"],elog))
 
         print("Downloaded {0}:songs from url: {1}".format(len(downloaded_songs),self.url))
 
 if __name__ == "__main__":
     url = input("Enter Youtube Music URL: ")
-    s = Converter(url)
+    s = YTMusic_Downloader(url)
     s.main()
