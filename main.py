@@ -12,7 +12,7 @@ class Converter:
         self.url = url
         self.base_dir = "/opt/ytmusic-downloader/" 
         self.config = self.load_settings()
-        self.option_template = {"title":"title","album":"album","artist":"artist","year":"release_year","cover":"thumbnails"}
+        self.option_template = {"title":"title","album":"album","artist":"artist","date":"release_year","cover":"thumbnails"}
 
 
     def load_settings(self):
