@@ -59,7 +59,7 @@ class Converter:
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl':self.config['temp_dir'] + '/%(title)s-%(id)s.%(ext)s',
+            'outtmpl':self.config['temp_dir'] + '/%(id)s.%(ext)s',
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -81,7 +81,7 @@ class Converter:
                         info_op = ""
                     finally:
                         options.update({to_key:info_op})
-                options.update({"file_path": "{0}/{1}-{2}.{3}".format(self.config['temp_dir'],info_dict["title"],info_dict["id"],ydl_opts["postprocessors"][0]["preferredcodec"])})
+                options.update({"file_path": "{}/{}.{}".format(self.config['temp_dir'],info_dict["id"],ydl_opts["postprocessors"][0]["preferredcodec"])})
                 return True,options
 
     def download_crop_cover(self,url):
