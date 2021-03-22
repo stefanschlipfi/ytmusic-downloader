@@ -33,15 +33,15 @@ class YTMusic_Downloader:
         ydl_opts = {'extract_flat' : True}
         ydl_opts.update(options)
 
-        playlist_urls = []
+        playlist_urls = set()
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             playlist_info = ydl.extract_info(self.url, download=False)
             
             if "entries" in playlist_info:
                 for entries in playlist_info['entries']:
-                    playlist_urls.append("https://music.youtube.com/watch?v={0}".format(entries["url"]))
+                    playlist_urls.add("https://music.youtube.com/watch?v={0}".format(entries["url"]))
             else:
-                playlist_urls = [self.url]
+                playlist_urls = {self.url}
 
             return playlist_urls
 
