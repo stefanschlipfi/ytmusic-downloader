@@ -35,7 +35,7 @@ class Exporter(object):
         tags.pop("cover")
 
         if self.options["artist"] != "" :
-            filename="{0}/{1}-{2}.{3}".format(export_path,self.options["title"],self.options["artist"],self.aformat)
+            filename="{0}/{1}-{2}.{3}".format(export_path,self.options["title"].replace('/','-'),self.options["artist"],self.aformat)
         else:
             filename="{0}/{1}.{2}".format(export_path,self.options["title"],self.aformat)
 
