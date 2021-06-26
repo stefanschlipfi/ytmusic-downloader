@@ -1,6 +1,7 @@
 {
     "temp_dir": "/tmp/ytmusic-downloader/",
     "export_dir": "/home/clemens/Music/",
+    "notallowed_characters": "/\\\"<>|`'$?*~[]{}:.;",
 
     "flat_playlist_settings":{
         "playlist_items": "0-100"

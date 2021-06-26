@@ -115,16 +115,36 @@ class YTMusic_Downloader:
         download_list = self.flat_playlist(options=flat_playlist_settings)
         downloaded_songs = list()
         for song_url in download_list:
-            resp = self.download_url(song_url)
+            resp = self.download_url(song_url,download=True)
             if resp[0]:
-                downloaded_songs.append(resp[1])
+               downloaded_songs.append(resp[1])
         
         for song_dict in downloaded_songs:
-            export_path = "{}/{}/{}/".format(self.config["export_dir"],song_dict["artist"],song_dict["album"])
 
+            notallowedcharacters = self.config["notallowed_characters"]
+            export_path_parts = [song_dict["artist"],song_dict["album"],song_dict["title"]]
+            
+            for i in range(len(export_path_parts)):
+                for c in notallowedcharacters:
+                    export_path_parts[i] = export_path_parts[i].replace(c,"-")
+                    export_path_parts[i] = export_path_parts[i].replace(" ","_")
+           
+
+            if song_dict["artist"] != "":
+                export_path = "{0}/{1}/{2}/{3}-{4}".format(self.config["export_dir"],export_path_parts[0],export_path_parts[1],export_path_parts[2],export_path_parts[0])
+            else:
+                export_path = "{}/{}/{}".format(self.config["export_dir"],export_path_parts[1],export_path_parts[2])
+             
+            export_path += "."
+            print("Export Path: {}".format(export_path))
+            
+            #continue
             #check if path exists
-            if not os.path.exists(export_path):
-                os.makedirs(export_path)
+            
+            folder_path =  "/"+self.config["export_dir"]+"/"+export_path_parts[0]+"/"+export_path_parts[1]           
+            
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
 
             #convert cover
             resp_cover = self.download_crop_cover(song_dict["cover"])
