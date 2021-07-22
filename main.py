@@ -108,7 +108,7 @@ class YTMusic_Downloader:
 
     def main(self):
 
-        flat_playlist_settings = s.config.get('flat_playlist_settings')
+        flat_playlist_settings = self.config.get('flat_playlist_settings')
         if not flat_playlist_settings:
             flat_playlist_settings = {'playlist_items': '0-100'}
 
