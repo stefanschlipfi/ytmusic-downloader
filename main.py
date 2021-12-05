@@ -12,7 +12,8 @@ class YTMusic_Downloader:
         self.url = url
         self.config = self.load_settings()
         self.option_template = {"title":"title","album":"album","artist":"artist","date":"release_year","cover":"thumbnails"}
-
+        self.cutter_regex_comp = re.compile(r"(\[|\().*(\)|\])")
+        self.filler_regex_comp = re.compile(r"[^a-zA-Z0-9\s\-]")
 
     def load_settings(self):
 
@@ -81,7 +82,7 @@ class YTMusic_Downloader:
                         info_op = ""
                     finally:
                         options.update({to_key:info_op})
-                options.update({"file_path": "{}/{}.{}".format(self.config['temp_dir'],info_dict["id"],ydl_opts["postprocessors"][0]["preferredcodec"])})
+                options.update({"ytdl_tmp_path": "{}/{}.{}".format(self.config['temp_dir'],info_dict["id"],ydl_opts["postprocessors"][0]["preferredcodec"])})
                 return True,options
 
     def download_crop_cover(self,url):
@@ -106,6 +107,16 @@ class YTMusic_Downloader:
         croped_image.save(self.config["temp_dir"] + "/image_croped.png")
         return True,self.config["temp_dir"] + "/image_croped.png"
 
+    def pretty_path(self,path):
+        path = re.sub(self.cutter_regex_comp,"",path)
+        path = re.sub(self.filler_regex_comp, "", path)
+        path = path.strip() 
+
+        #replace spaces with underscore
+        path = re.sub(r"\s+","_",path)
+        return path
+
+
     def main(self):
 
         flat_playlist_settings = self.config.get('flat_playlist_settings')
@@ -119,46 +130,49 @@ class YTMusic_Downloader:
             if resp[0]:
                downloaded_songs.append(resp[1])
         
+
         for song_dict in downloaded_songs:
 
-            notallowedcharacters = self.config["notallowed_characters"]
-            export_path_parts = [song_dict["artist"],song_dict["album"],song_dict["title"]]
-            
-            for i in range(len(export_path_parts)):
-                for c in notallowedcharacters:
-                    export_path_parts[i] = export_path_parts[i].replace(c,"-")
-                    export_path_parts[i] = export_path_parts[i].replace(" ","_")
-           
+            #Manual Tags
+            #song_dict["album"] = "Ultimate Christmas Hits"
+            artist = song_dict["artist"]
+            #artist = ""
+            #Is a cover wanted?
+            coverwanted = True
 
-            if song_dict["artist"] != "":
-                export_path = "{0}/{1}/{2}/{3}-{4}".format(self.config["export_dir"],export_path_parts[0],export_path_parts[1],export_path_parts[2],export_path_parts[0])
-            else:
-                export_path = "{}/{}/{}".format(self.config["export_dir"],export_path_parts[1],export_path_parts[2])
-             
-            export_path += "."
-            print("Export Path: {}".format(export_path))
-            
-            #continue
+            #define export dir without title
+            export_dir = "{0}/{1}/{2}/".format(\
+                 self.pretty_path(self.config["export_dir"]) \
+                ,self.pretty_path(artist) \
+                ,self.pretty_path(song_dict["album"]))
+
             #check if path exists
-            
-            folder_path =  "/"+self.config["export_dir"]+"/"+export_path_parts[0]+"/"+export_path_parts[1]           
-            
-            if not os.path.exists(folder_path):
-                os.makedirs(folder_path)
+            if not os.path.exists(export_dir):
+                os.makedirs(export_dir)
+
+            #append title
+            export_path = export_dir + self.pretty_path(song_dict["title"])
+
+            #debug
+            print("Export_Path: " + export_path)
 
             #convert cover
             resp_cover = self.download_crop_cover(song_dict["cover"])
-            if resp_cover[0]:
+
+            if coverwanted and resp_cover[0]: 
                 song_dict.update({"cover":resp_cover[1]})
-                file_path = song_dict.pop("file_path")
+            else:
+                song_dict.update({"cover":None})
+
+            ytdl_tmp_path = song_dict.pop("ytdl_tmp_path")
                 
-                try:
-                    e = Exporter(file_path,song_dict)
-                    elog = e.export(export_path)
-                except Exception as e:
-                    print("skipped: {0}\nError: {1}".format(file_path,e))
-                else:
-                    print("successfully exported: {0}\n{1}".format(song_dict["title"],elog))
+            try:
+                exporter = Exporter(ytdl_tmp_path,song_dict)
+                exporterlog = exporter.export(export_path)
+            except Exception as e:
+                print("skipped: {0}\nError: {1}".format(ytdl_tmp_path,e))
+            else:
+                print("successfully exported: {0}\n{1}".format(song_dict["title"],exporterlog))
 
         print("Downloaded {0}:songs from url: {1}".format(len(downloaded_songs),self.url))
 
