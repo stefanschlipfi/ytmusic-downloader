@@ -38,3 +38,4 @@ class Exporter(object):
                         tags=self.options,
                         cover=cover)
         return "File: {0}, Options: {1}".format(filename,self.options)
+

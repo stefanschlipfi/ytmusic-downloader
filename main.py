@@ -46,7 +46,7 @@ class YTMusic_Downloader:
 
             return playlist_urls
 
-    def download_url(self,url,download=True):
+    def download_url(self,url,download=True, maxdownloadretries=3):
         """
         download from self.link
         return bool list with title_informations
@@ -68,7 +68,12 @@ class YTMusic_Downloader:
                 info_dict = ydl.extract_info(url, download=download)
             except Exception as e:
                 print("Error on url: {0}\nException: {1}".format(url,e))
-                return False,e
+                if maxdownloadretries > 0:
+                   print("New Attempt! Max Tries: " + str(maxdownloadretries))
+                   return self.download_url(url,download,maxdownloadretries-1)
+                else:
+                   print("Error: Impossible to download " + url)
+                   return False,e
             else:
                 options = {}
                 for to_key, yt_key in self.option_template.items():
@@ -167,6 +172,7 @@ class YTMusic_Downloader:
             ytdl_tmp_path = song_dict.pop("ytdl_tmp_path")
                 
             try:
+                print(song_dict)
                 exporter = Exporter(ytdl_tmp_path,song_dict)
                 exporterlog = exporter.export(export_path)
             except Exception as e:
