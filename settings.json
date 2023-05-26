@@ -1,6 +1,6 @@
 {
-    "temp_dir": "/tmp/ytmusic-downloader/",
-    "export_dir": "./output/",
+    "temp_dir": "./tmp/",
+    "export_dir": "/media/storage/secondary_data/media/Music/",
 
     "flat_playlist_settings":{
         "playlist_items": "0-100"

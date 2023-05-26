@@ -3,6 +3,7 @@ import youtube_dl
 from requests import request
 from PIL import Image
 from exporter import Exporter
+from pathlib import Path
 
 class YTMusic_Downloader:
 
@@ -60,7 +61,7 @@ class YTMusic_Downloader:
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl':self.config['temp_dir'] + '/%(id)s.%(ext)s',
+            'outtmpl':str(Path(self.config['temp_dir']).absolute()) + '/%(id)s.%(ext)s',
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -82,7 +83,7 @@ class YTMusic_Downloader:
                         info_op = ""
                     finally:
                         options.update({to_key:info_op})
-                options.update({"ytdl_tmp_path": "{}/{}.{}".format(self.config['temp_dir'],info_dict["id"],ydl_opts["postprocessors"][0]["preferredcodec"])})
+                options.update({"ytdl_tmp_path": "{}/{}.{}".format(str(Path(self.config['temp_dir']).absolute()),info_dict["id"],ydl_opts["postprocessors"][0]["preferredcodec"])})
                 return True,options
 
     def download_crop_cover(self,url):
@@ -95,17 +96,17 @@ class YTMusic_Downloader:
         if not image:
             return False,"Failed with status_code: {0}, url: {1}".format(image.status_code,image.url)
 
-        with open(self.config["temp_dir"] + "/image",'wb') as f:
+        with open(str(Path(self.config["temp_dir"]).absolute()) + "/image",'wb') as f:
             f.write(image.content)
 
-        image = Image.open(self.config["temp_dir"] + "/image").convert("RGB")
+        image = Image.open(str(Path(self.config["temp_dir"]).absolute()) + "/image").convert("RGB")
         left = int((image.width - image.height) / 2)
         right = int(image.width - left)
         
         croped_image = image.crop((left,0,right,image.height))
         croped_image.thumbnail((720,720))
-        croped_image.save(self.config["temp_dir"] + "/image_croped.png")
-        return True,self.config["temp_dir"] + "/image_croped.png"
+        croped_image.save(str(Path(self.config["temp_dir"]).absolute())  + "/image_croped.png")
+        return True,str(Path(self.config["temp_dir"]).absolute()) + "/image_croped.png"
 
     def pretty_path(self,path):
         path = re.sub(self.cutter_regex_comp,"",path)
@@ -142,7 +143,7 @@ class YTMusic_Downloader:
 
             #define export dir without title
             export_dir = "{0}/{1}/{2}/".format(\
-                 self.pretty_path(self.config["export_dir"]) \
+                 str(Path(self.config["export_dir"]).absolute()) \
                 ,self.pretty_path(artist) \
                 ,self.pretty_path(song_dict["album"]))
 
